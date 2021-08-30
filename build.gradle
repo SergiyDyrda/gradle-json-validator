@@ -12,17 +12,21 @@ buildscript {
 }
 
 plugins {
-    id 'net.researchgate.release' version '2.4.0'
+    id 'net.researchgate.release' version '2.8.1'
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.codehaus.groovy:groovy-all:2.5.12'
+    }
 }
 
 group 'cz.alenkacz.gradle'
-version = version == 'unspecified' ? 'DEVELOPER-SNAPSHOT' : version
+version = '1.2.2'
 
 apply plugin: 'groovy'
 apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'maven-publish'
 
 repositories {
     jcenter()
@@ -31,9 +35,9 @@ repositories {
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "3.3"
-}
+//task wrapper(type: Wrapper) {
+//    gradleVersion = "6.6"
+//}
 
 dependencies {
     compile gradleApi()
@@ -71,43 +75,41 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-artifacts {
-    archives sourcesJar
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    configurations = ['archives']
-    publish = true
-    pkg {
-        repo = 'maven'
-        name = 'gradle-json-validator'
-        desc = 'Gradle plugin that with a task that is capable of json validation during a Gradle build. Json schema is used for that.'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/alenkacz/gradle-json-validator.git'
-        websiteUrl = 'https://github.com/alenkacz/gradle-json-validator'
-        issueTrackerUrl = 'https://github.com/alenkacz/gradle-json-validator/issues'
-        labels = ['json', 'validation', 'schema', 'json schema', 'gradle']
-        version {
-            name = project.version
-            vcsTag = project.version
+publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//            pom {
+//                name = "Gradle Json Validator"
+//                description = "Gradle Json Validator"
+//                url = "TDB"
+//            }
+//        }
+//    }
+    repositories {
+        maven {
+            url 'https://pkgs.dev.azure.com/pandora-jewelry/eda-integration-platform/_packaging/eda-integration-platform-feed/maven/v1'
+            credentials {
+                username "eda-integration-platform-feed"
+                //The Azure DevOps Services build system will use the "AZURE_ARTIFACTS_ENV_ACCESS_TOKEN" to authenticate to Azure DevOps Services feeds
+                password System.getenv("AZURE_ARTIFACTS_ENV_ACCESS_TOKEN") != null ? System.getenv("AZURE_ARTIFACTS_ENV_ACCESS_TOKEN") : vstsMavenAccessToken
+            }
         }
     }
 }
 
-project.ext.set('gradle.publish.key', System.getenv('GRADLE_PORTAL_KEY'))
-project.ext.set('gradle.publish.secret', System.getenv('GRADLE_PORTAL_SECRET'))
-pluginBundle {
-    website = 'https://github.com/alenkacz/gradle-json-validator'
-    vcsUrl = 'https://github.com/alenkacz/gradle-json-validator'
-    description = 'Gradle plugin for json validation (json schema)'
-    tags = ['json', 'schema', 'validation']
-
-    plugins {
-        jsonValidatorPlugin {
-            id = 'cz.alenkacz.gradle.jsonvalidator'
-            displayName = 'Gradle Json Schema Validator'
-        }
-    }
-}
+//project.ext.set('gradle.publish.key', System.getenv('GRADLE_PORTAL_KEY'))
+//project.ext.set('gradle.publish.secret', System.getenv('GRADLE_PORTAL_SECRET'))
+//pluginBundle {
+//    website = 'https://github.com/alenkacz/gradle-json-validator'
+//    vcsUrl = 'https://github.com/alenkacz/gradle-json-validator'
+//    description = 'Gradle plugin for json validation (json schema)'
+//    tags = ['json', 'schema', 'validation']
+//
+//    plugins {
+//        jsonValidatorPlugin {
+//            id = 'cz.alenkacz.gradle.jsonvalidator'
+//            displayName = 'Gradle Json Schema Validator'
+//        }
+//    }
+//}
